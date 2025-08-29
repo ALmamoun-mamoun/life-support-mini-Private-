@@ -51,7 +51,12 @@ jobs:
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses
 
-      # 👇 NEW: force Gradle 7.6.2 so cordova-android 12 works
+      # Install the exact SDK packages cordova-android 12 expects
+      - name: Install Android build-tools and platform
+        run: |
+          sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
+
+      # Pin Gradle for cordova-android 12
       - name: Use Gradle 7.6.2 (compatible with cordova-android 12)
         run: |
           curl -L https://services.gradle.org/distributions/gradle-7.6.2-bin.zip -o gradle.zip
