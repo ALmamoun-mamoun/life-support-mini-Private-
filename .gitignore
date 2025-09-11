@@ -1,0 +1,22 @@
+# Node
+**/node_modules/
+**/npm-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Build outputs
+**/dist/
+**/build/
+**/coverage/
+**/.cache/
+
+# Cordova/Android/IDE
+**/platforms/
+**/plugins/
+**/.gradle/
+**/.idea/
+**/*.iml
+
+# Logs & reports
+**/*.log
+**/reports/
