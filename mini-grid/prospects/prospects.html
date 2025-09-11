@@ -1,0 +1,36 @@
+﻿<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Prospects</title></head>
+<body>
+  <h1>Prospects</h1>
+
+  <script>
+    // SHOW only if status === 1 (permitted). Otherwise NO-SHOW with a clear message.
+    async function ensurePermittedOrHide(guid){
+      try{
+        const r = await fetch('http://127.0.0.1:3001/gatekeeping/status?guid=' + encodeURIComponent(guid));
+        if(!r.ok) return hardHide('Access check failed. Please retry.');
+        const data = await r.json();
+        const allowed = data.found && Number(data.record.status) === 1;
+        if (allowed) return revealMainUI();
+        const name = data.found ? (data.record.status_name || String(data.record.status)) : 'not_found';
+        const msg = (name === 'held_elsewhere')
+          ? "This record is currently being handled elsewhere. You can’t work it from this Mini."
+          : "Access pending. Try again shortly.";
+        return hardHide(msg);
+      }catch{ return hardHide('Access check failed. Please retry.'); }
+    }
+    function revealMainUI(){ document.documentElement.style.opacity=1; const m=document.getElementById('gate-message'); if(m) m.remove(); }
+    function hardHide(message){
+      document.documentElement.style.opacity=0.2;
+      let m=document.getElementById('gate-message');
+      if(!m){ m=document.createElement('div'); m.id='gate-message';
+        Object.assign(m.style,{position:'fixed',inset:'0',display:'grid',placeItems:'center',background:'rgba(0,0,0,0.6)',color:'#fff',fontSize:'18px',zIndex:99999,textAlign:'center',padding:'24px'});
+        document.body.appendChild(m);
+      }
+      m.textContent = message;
+    }
+    document.addEventListener('DOMContentLoaded', () => { ensurePermittedOrHide('a66f0fe0-2983-4582-ab31-30f95f66113d'); });
+  </script>
+</body>
+</html>

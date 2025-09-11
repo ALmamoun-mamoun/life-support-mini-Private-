@@ -1,0 +1,24 @@
+UI = User Interface — the screen you use in your browser (buttons, text, lists).
+
+In our setup, “UI” specifically means the Prospects web page:
+
+Address: http://127.0.0.1:3005/prospects.html?guid=...
+
+It’s the front-end: what you see and click.
+
+It talks to the API (the backend on port 3001) through the proxy (port 3005).
+
+Quick map:
+
+UI → Prospects page in Chrome.
+
+Proxy (3005) → middleman that serves the UI and forwards its requests.
+
+API (3001) → the backend service.
+
+Poller → background script that drains the event outbox (no screen).
+
+So when I say “Open UI”, I mean: open the Prospects page in your browser (usually via your desktop launcher or that 3005 link with your GUID).
+
+
+$g=[guid]::NewGuid(); Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:3005/gatekeeping/upsert" -Body (@{entity_guid="$g";status='permitted'}|ConvertTo-Json) -ContentType "application/json"; "$g"

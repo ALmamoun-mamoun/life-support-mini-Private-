@@ -1,0 +1,3 @@
+@echo off
+:: Stop Mini API (port 3001) with PowerShell
+powershell -NoProfile -Command "$p=(Get-NetTCPConnection -State Listen -LocalPort 3001 -ErrorAction SilentlyContinue | Select-Object -Expand OwningProcess -Unique); if($p){ Stop-Process -Id $p -Force; Write-Host ('Stopped PID {0} on port 3001.' -f $p); exit 0 } else { $ps = Get-CimInstance Win32_Process -Filter ""Name='node.exe'"" | Where-Object { $_.CommandLine -like '*E:\life-support-mini\api\server.js*' } | Select-Object -Expand ProcessId -ErrorAction SilentlyContinue; if($ps){ $ps | ForEach-Object { Stop-Process -Id $_ -Force }; Write-Host 'Stopped Mini API by script path.'; exit 0 } else { Write-Host 'Mini API not running.'; exit 0 } }"

@@ -1,0 +1,23 @@
+﻿key,en,ar
+app_title,Prospects,المرشّحين
+welcome_working_on,Working on {company},أعمل على {company}
+today_goal,Today’s single goal:,هدف اليوم:
+ready_badge,Ready to work,جاهز للعمل
+pending_msg,Access pending. Try again shortly.,الوصول معلق. جرّب بعد قليل.
+held_elsewhere_msg,This record is being handled elsewhere.,يتم التعامل مع هذا السجل في مكان آخر.
+access_failed_msg,We couldn’t verify access. Please retry.,تعذّر التحقق من الوصول. يرجى المحاولة مجددًا.
+connecting_msg,Connecting…,جارٍ الاتصال…
+create_record_number,Create record number,أنشئ رقم سجل
+mark_ready,Mark ready to work,ضع علامة جاهز للعمل
+can_i_work,Can I work this record?,هل أستطيع العمل على هذا السجل؟
+show_details,Show record details,اعرض تفاصيل السجل
+open_prospects,Open Prospects,افتح صفحة المرشّحين
+like_most_q,What do you like most about this company?,ما الذي يعجبك أكثر في هذه الشركة؟
+next_step_label,Next step:,الخطوة التالية:
+biggest_win_label,Biggest win today:,أكبر إنجاز اليوم:
+three_tasks_title,Today’s three tiny tasks:,ثلاث مهام صغيرة لليوم:
+task_find_dm,Find the decision maker,ابحث عن صاحب القرار
+task_three_bullets,Write 3 bullets about product/customers,اكتب 3 نقاط عن المنتج/العملاء
+task_one_next_step,Draft one next step,صِغ خطوة تالية واحدة
+saved_note,Saved to record.,تم الحفظ في السجل.
+save_failed,Save failed. Please try again.,فشل الحفظ. يرجى المحاولة مجددًا.

@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Mini API Test</title>
+
+<p><a href="http://127.0.0.1:3000/api/health" target="_blank">Open API /api/health (should be 200)</a></p>
+
+<button id="btnHealth">Health (calls http://127.0.0.1:3000/api/health)</button>
+<button id="btnPromote">Promote (POST /api/promote)</button>
+<pre id="out" style="white-space:pre-wrap;border:1px solid #ccc;padding:8px;margin-top:10px;border-radius:6px;">Output appears here…</pre>
+
+<script>
+const out = document.getElementById('out');
+function show(msg){ out.textContent = msg; }
+async function call(url, opts){
+  show('Fetching ' + url + ' ...');
+  try{
+    const r = await fetch(url, opts);
+    const text = await r.text();
+    show('status: ' + r.status + '\n' + text);
+  }catch(e){
+    show('ERROR: ' + e);
+  }
+}
+
+document.getElementById('btnHealth').onclick = () =>
+  call('http://127.0.0.1:3000/api/health');
+
+document.getElementById('btnPromote').onclick = () =>
+  call('http://127.0.0.1:3000/api/promote', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ gat_id:'GAT001', city_id:'DE-BER-1101', company_id:'COMP123' })
+  });
+</script>

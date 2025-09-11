@@ -1,0 +1,300 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Company Grid</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+/* Place before </body> */
+<button id="exitBtn" style="position:fixed;bottom:14px;right:14px;padding:6px 10px;
+  background:#222;border:1px solid #666;border-radius:8px;color:#eee;font-size:13px;opacity:.6;cursor:pointer;">
+  Exit
+</button>
+
+<script>
+  document.getElementById('exitBtn').onclick = async () => {
+    try {
+      await fetch('/admin/shutdown', {method:'POST'});
+    } catch(e){
+      console.warn('Shutdown call failed', e);
+    }
+    window.close();
+  };
+</script>
+
+<style>
+  :root{
+    --bg:#0b1020; --panel:#0f1530; --ink:#eaf0ff; --muted:#a9b4d6; --glass:rgba(255,255,255,.06);
+    /* softer accents (~45% density) */
+    --acc1: rgba(124,77,255,.45);
+    --acc2: rgba(0,212,255,.45);
+    --acc3: rgba(255,111,145,.45);
+    --ring: rgba(0,212,255,.25);
+  }
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(1200px 800px at 20% -10%, rgba(30,41,87,.45) 0%, transparent 60%),
+      radial-gradient(1200px 800px at 120% 20%, rgba(24,40,90,.40) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
+    font: 15px/1.5 system-ui, Segoe UI, Arial;
+  }
+  .shell{max-width:1120px;margin:0 auto;padding:24px}
+  .topbar{
+    position:sticky; top:0; z-index:10; backdrop-filter:saturate(140%) blur(8px);
+    background:linear-gradient(180deg, rgba(12,18,40,.82), rgba(12,18,40,.52));
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .topbar .row{display:flex;align-items:center;gap:14px;padding:12px 24px}
+  .logo{font-weight:800;letter-spacing:.3px;font-size:18px}
+  .search{flex:1; display:flex; gap:10px; margin-top:14px; padding:0 24px 16px}
+  .search input{
+    flex:1; padding:12px 14px; border-radius:12px; background:#0c1431; color:var(--ink);
+    border:1px solid rgba(255,255,255,.12); outline:none;
+  }
+
+  .grid{
+    display:grid; gap:14px; grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    padding:22px 0 40px;
+  }
+
+  /* float animation: bottom-left -> top-left; pause on hover/touch */
+  @keyframes driftY { from { transform: translate(-8px, 8px); } to { transform: translate(-8px, -8px); } }
+
+  .card{
+    display:flex; gap:12px; align-items:center; padding:12px; border-radius:16px; cursor:pointer;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)) padding-box,
+      linear-gradient(135deg, var(--acc1), var(--acc2)) border-box;
+    border:1px solid transparent;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    animation: driftY 6s ease-in-out infinite alternate;
+  }
+  /* stop motion on user focus/hover/touch */
+  .card:hover, .card:focus-within, .card.paused {
+    animation-play-state: paused;
+    transform: translateY(0) scale(1.01);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; }
+  }
+
+  .thumb{
+    width:60px;height:60px;border-radius:12px; background:#101935; flex:0 0 60px; object-fit:cover;
+    border:1px solid rgba(255,255,255,.12)
+  }
+  .fallback{
+    width:60px;height:60px;border-radius:12px; display:grid; place-items:center;
+    background: conic-gradient(from 210deg, var(--acc2), var(--acc1), var(--acc3));
+    color:#001226; font:800 22px system-ui; border:1px solid rgba(255,255,255,.18)
+  }
+  .meta h4{margin:0 0 4px; font:700 15px/1.25 system-ui}
+  .url{font:12px/1.2 system-ui; color:var(--muted)}
+  .sentinel{height:1px}
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#0d1228; color:#e7edff;
+         padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.14); z-index:9999}
+  .pill{font:11px;padding:3px 8px;border-radius:999px;background:rgba(0,212,255,.18); color:#7fe7ff; border:1px solid rgba(0,212,255,.28)}
+  .dim{opacity:.6}
+
+  /* --- detail side panel --- */
+  .panel{position:fixed;top:0;right:0;height:100vh;width:420px;max-width:90vw;
+    background:linear-gradient(180deg, rgba(18,24,48,.96), rgba(12,18,36,.96));
+    border-left:1px solid rgba(255,255,255,.08); transform:translateX(100%); transition:transform .18s ease;
+    z-index:1000; display:flex; flex-direction:column}
+  .panel.open{transform:translateX(0)}
+  .panel .ph{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .panel .ph h3{margin:0;font:700 16px/1.2 system-ui}
+  .panel .ph .url{color:var(--muted);font:12px}
+  .panel .body{display:grid;grid-template-rows:auto 1fr;row-gap:12px;padding:12px 12px 20px;overflow:auto}
+  .listy{display:flex;flex-direction:column;gap:10px}
+  .person{padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.03)}
+  .person h4{margin:0 0 6px;font:700 14px/1.2 system-ui}
+  .kv{color:var(--muted);font:12px;display:flex;gap:10px;flex-wrap:wrap}
+  .kv a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.25)}
+  .company-notes{white-space:pre-wrap;font:13px/1.4 system-ui;color:#dfe6ff;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);padding:10px;border-radius:12px}
+  .closebtn{margin-left:auto;cursor:pointer;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 10px;background:rgba(255,255,255,.06)}
+</style>
+
+<div class="topbar">
+  <div class="row shell">
+    <div class="logo">Company Grid</div>
+  </div>
+  <div class="search shell">
+    <input id="q" placeholder="Search companies…" autocomplete="off" />
+    <div class="pill">Scroll to load more</div>
+  </div>
+</div>
+
+<div class="shell">
+  <div id="list" class="grid"></div>
+  <div id="sentinel" class="sentinel"></div>
+</div>
+
+<script>
+(() => {
+  const API = 'http://127.0.0.1:3001';
+  const list = document.getElementById('list');
+  const sentinel = document.getElementById('sentinel');
+  const qInput = document.getElementById('q');
+
+  // toast
+  let tT=null;
+  const toast = (m)=>{
+    const el=document.createElement('div');
+    el.className='toast';
+    el.textContent=m;
+    document.body.appendChild(el);
+    clearTimeout(tT);
+    tT=setTimeout(()=>el.remove(),2000);
+  };
+
+  // state
+  let q='', offset=0, limit=50, loading=false, done=false;
+
+  function letterAvatar(name){
+    const el=document.createElement('div'); el.className='fallback';
+    el.textContent=(name||'?').trim().charAt(0).toUpperCase() || '?';
+    return el;
+  }
+
+  function card(item){
+    const el=document.createElement('div'); el.className='card'; el.dataset.guid=item.guid;
+
+    const img=document.createElement('img'); img.className='thumb'; img.alt=item.company_name||'';
+    img.src=item.thumb_url||''; img.onerror=()=>{ img.replaceWith(letterAvatar(item.company_name)); };
+
+    const meta=document.createElement('div'); meta.className='meta';
+    const h=document.createElement('h4'); h.textContent=item.company_name || '(no name)';
+    const u=document.createElement('div'); u.className='url'; u.textContent=item.website_url || '';
+    meta.appendChild(h); meta.appendChild(u);
+
+    el.appendChild(img);
+    el.appendChild(meta);
+
+    // stop motion on touch/click
+    el.addEventListener('pointerdown', () => el.classList.add('paused'));
+
+    // Gate rule: SHOW only if permitted; retry briefly if pending, hide if denied
+    const gateOnce = async () => {
+      try{
+        const r = await fetch(`${API}/gatekeeping/allow?guid=${encodeURIComponent(item.guid)}&entity_type=prospect`);
+        const data = await r.json();
+        if (data.ok && data.allow === true) {
+          el.classList.remove('dim');
+        } else if (data.ok && (data.reason === 'pending' || data.status === 0)) {
+          el.classList.add('dim'); setTimeout(gateOnce, 700);
+        } else {
+          el.remove(); // no-show if held_elsewhere or not found
+        }
+      } catch {
+        el.classList.add('dim'); setTimeout(gateOnce, 800);
+      }
+    };
+    el.classList.add('dim');
+    gateOnce();
+
+    // click → gatecheck then open panel
+    el.addEventListener('click', async () => {
+      try{
+        const r=await fetch(`${API}/gatekeeping/allow?guid=${encodeURIComponent(item.guid)}&entity_type=prospect`);
+        const d=await r.json();
+        if (d.ok && d.allow) {
+          panel.openFor(item.guid);
+        } else {
+          toast(d.reason ? `No access: ${d.reason}` : 'No access');
+        }
+      }catch{ toast('Network error'); }
+    });
+
+    return el;
+  }
+
+  async function load(){
+    if (loading || done) return; loading=true;
+    try{
+      const r = await fetch(`${API}/grid/companies?limit=${limit}&offset=${offset}&q=${encodeURIComponent(q)}`);
+      const d = await r.json();
+      if (!d || !Array.isArray(d.items)) throw new Error('bad_response');
+      if (d.items.length === 0){ done = true; return; }
+      d.items.forEach(it => list.appendChild(card(it)));
+      offset += d.items.length;
+    } catch(e){
+      console.error(e); toast('Load failed');
+    } finally { loading=false; }
+  }
+
+  const io = new IntersectionObserver(es => {
+    if (es.some(e=>e.isIntersecting)) load();
+  }, { rootMargin: '800px 0px' });
+  io.observe(sentinel);
+
+  let timer=null;
+  qInput.addEventListener('input', ()=>{
+    q=qInput.value.trim(); clearTimeout(timer);
+    timer=setTimeout(()=>{ list.innerHTML=''; offset=0; done=false; load(); }, 250);
+  });
+
+  load();
+
+  // ---- detail panel (company + contacts) ----
+  const panel = (() => {
+    // create shell
+    const wrap = document.createElement('div');
+    wrap.className = 'panel';
+    wrap.innerHTML = `
+      <div class="ph">
+        <h3 id="ph-name">Company</h3>
+        <span class="url" id="ph-url"></span>
+        <button class="closebtn" id="ph-close">Close</button>
+      </div>
+      <div class="body">
+        <div class="company-notes" id="ph-notes" style="display:none"></div>
+        <div class="listy" id="ph-people"></div>
+      </div>
+    `;
+    document.body.appendChild(wrap);
+    const closeBtn = wrap.querySelector('#ph-close');
+    closeBtn.onclick = ()=> wrap.classList.remove('open');
+
+    async function openFor(guid){
+      // company
+      try{
+        let r = await fetch(`${API}/grid/company?guid=${encodeURIComponent(guid)}`);
+        let c = await r.json();
+        const comp = c.company || {};
+        wrap.querySelector('#ph-name').textContent = comp.company_name || 'Company';
+        wrap.querySelector('#ph-url').textContent  = comp.website_url || '';
+        const notesEl = wrap.querySelector('#ph-notes');
+        if ((comp.notes||'').trim()) { notesEl.style.display='block'; notesEl.textContent = comp.notes; }
+        else { notesEl.style.display='none'; notesEl.textContent=''; }
+      } catch(e){ /* ignore */ }
+
+      // contacts
+      try{
+        const r = await fetch(`${API}/grid/contacts?guid=${encodeURIComponent(guid)}`);
+        const data = await r.json();
+        const box = wrap.querySelector('#ph-people');
+        box.innerHTML = '';
+        (data.contacts || []).forEach(p => {
+          const el = document.createElement('div');
+          el.className = 'person';
+          el.innerHTML = `
+            <h4>${(p.name||'').toString()}</h4>
+            <div class="kv">
+              <span>${(p.role||'').toString()}</span>
+              ${p.email ? `<a href="mailto:${p.email}">${p.email}</a>` : ''}
+              ${p.phone ? `<a href="tel:${p.phone}">${p.phone}</a>` : ''}
+            </div>
+            ${p.notes ? `<div class="company-notes" style="margin-top:8px">${(p.notes||'').toString()}</div>` : ''}
+          `;
+          box.appendChild(el);
+        });
+      } catch(e){ /* ignore */ }
+
+      wrap.classList.add('open');
+    }
+
+    return { openFor };
+  })();
+
+})();
+</script>

@@ -1,0 +1,13 @@
+You’re right, and I’m sorry for the lag. I’ll switch to fast mode now:
+
+Default: ultra-short replies; no extra thinking or add-ons.
+
+If you want detail, just start your message with deep:
+
+If you want a clean spec, start with spec:
+
+If you want code only, start with code:
+
+Also, if you’re mid-thought, I’ll stay quiet until you write done.
+
+We can keep fast mode on until you say normal.

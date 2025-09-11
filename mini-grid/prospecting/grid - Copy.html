@@ -1,0 +1,53 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sales Grid</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{--bg:#0b1020;--panel:#0f1530;--ink:#eaf0ff;--muted:#a9b4d6;--glass:rgba(255,255,255,.06);
+  --acc1:#7c4dff;--acc2:#00d4ff;--acc3:#ff6f91;--ring:rgba(0,212,255,.35)}
+  html,body{height:100%}
+  body{margin:0;color:var(--ink);background:radial-gradient(1200px 800px at 20% -10%,#1e2957 0%,transparent 60%),
+  radial-gradient(1200px 800px at 120% 20%,#18285a 0%,transparent 60%),linear-gradient(180deg,#0a0f1f 0%,#0b1020 100%);
+  font:15px/1.5 system-ui,Segoe UI,Arial}
+  .shell{max-width:1120px;margin:0 auto;padding:24px}
+  .topbar{position:sticky;top:0;z-index:10;backdrop-filter:saturate(160%) blur(8px);
+  background:linear-gradient(180deg,rgba(12,18,40,.85),rgba(12,18,40,.55));border-bottom:1px solid rgba(255,255,255,.06)}
+  .topbar .row{display:flex;align-items:center;gap:14px;padding:12px 24px}
+  .logo{font-weight:800;letter-spacing:.3px;font-size:18px}
+  .badge{padding:4px 8px;border-radius:12px;background:linear-gradient(90deg,var(--acc1),var(--acc2));color:#001226;font-weight:700}
+  .actions{margin-left:auto;display:flex;gap:10px}
+  .btn{padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:var(--glass);color:var(--ink);cursor:pointer}
+  .btn:hover{box-shadow:0 0 0 3px var(--ring)}
+  .search{flex:1;display:flex;gap:10px;margin-top:14px;padding:0 24px 16px}
+  .search input{flex:1;padding:12px 14px;border-radius:12px;background:#0c1431;color:var(--ink);
+  border:1px solid rgba(255,255,255,.12);outline:none}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));padding:22px 0 40px}
+  .card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:16px;cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02)) padding-box,
+  linear-gradient(135deg,var(--acc1),var(--acc2)) border-box;border:1px solid transparent;
+  transition:transform .12s ease,box-shadow .12s ease}
+  .card:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  .thumb{width:60px;height:60px;border-radius:12px;background:#101935;flex:0 0 60px;object-fit:cover;border:1px solid rgba(255,255,255,.12)}
+  .fallback{width:60px;height:60px;border-radius:12px;display:grid;place-items:center;
+  background:conic-gradient(from 210deg,var(--acc2),var(--acc1),var(--acc3));color:#001226;font:800 22px system-ui;border:1px solid rgba(255,255,255,.18)}
+  .meta h4{margin:0 0 4px;font:700 15px/1.25 system-ui}
+  .url{font:12px/1.2 system-ui;color:var(--muted)}
+  .sentinel{height:1px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0d1228;color:#e7edff;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);z-index:9999}
+  .pill{font:11px;padding:3px 8px;border-radius:999px;background:rgba(0,212,255,.18);color:#7fe7ff;border:1px solid rgba(0,212,255,.28)}
+  .dim{opacity:.6}
+</style>
+
+<div class="topbar">
+  <div class="row shell">
+    <div class="logo">Sales Grid</div>
+    <div class="badge">LIVE</div>
+    <div class="actions">
+      <a class="btn" href="file:///E:/life-support-mini/prospecting/prospects.html" target="_blank">Open Prospect Capture</a>
+    </div>
+  </div>
+  <div class="search shell">
+    <input id="q" placeholder="Search companies…" autocomplete="off" />
+    <div class="pill">Scroll to load more</div>
+  </div>
+<

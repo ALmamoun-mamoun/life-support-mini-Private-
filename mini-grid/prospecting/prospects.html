@@ -1,0 +1,110 @@
+﻿<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Prospects</title>
+
+    <!-- Optional language loader (kept) -->
+    <script src="languages/textsheet.js"></script>
+    <script>
+      TextSheet.load('languages/strings.csv','ar').then(dict => {
+        window._strings = dict;
+        document.title = TextSheet.t(dict,'app_title') || 'Prospects';
+      });
+    </script>
+  </head>
+
+  <body>
+    <h1>Prospects</h1>
+
+    <!-- Claim block -->
+    <div style="margin:12px 0;padding:12px;border:1px solid #ddd;border-radius:8px;max-width:860px">
+      <div style="margin-bottom:8px;font-weight:bold">Start Work / Claim</div>
+
+      <!-- row 1: parent toggle + parent id -->
+      <div style="display:grid;grid-template-columns: 220px 1fr;gap:8px;align-items:center;margin-bottom:8px">
+        <label style="white-space:nowrap">
+          <input type="checkbox" id="ls-has-parent"> Has a parent company?
+        </label>
+        <div id="ls-parent-row" style="display:none">
+          <input id="ls-parent-id" placeholder="Parent Company ID (numeric)" inputmode="numeric" pattern="[0-9]*" style="width:100%">
+        </div>
+      </div>
+
+      <!-- row 2: 4 columns Country | CC | City | City Abbr -->
+      <div style="display:grid;grid-template-columns: 1fr 120px 1fr 140px;gap:8px;align-items:center;margin-bottom:8px">
+        <div>
+          <div style="font-size:12px;color:#555">Country</div>
+          <select id="ls-country" style="width:100%"></select>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#555">Country CC</div>
+          <input id="ls-cc" placeholder="SA" maxlength="2" style="width:100%;text-transform:uppercase">
+        </div>
+        <div>
+          <div style="font-size:12px;color:#555">City (type or choose)</div>
+          <input id="ls-city" list="ls-cities" placeholder="City" style="width:100%">
+          <datalist id="ls-cities"></datalist>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#555">City Abbr (3 letters)</div>
+          <input id="ls-cityabbr" placeholder="AMM" maxlength="3" style="width:100%;text-transform:uppercase">
+        </div>
+      </div>
+
+      <!-- row 3: name + url + action -->
+      <div style="display:grid;grid-template-columns: 1.2fr 1.8fr auto;gap:8px;align-items:center;margin-bottom:6px">
+        <input id="ls-name" placeholder="Company / Branch Name" style="width:100%">
+        <input id="ls-url" placeholder="Company URL (https://…)" style="width:100%">
+        <button onclick="lsClaim()">Claim</button>
+      </div>
+
+      <!-- row 4: previews -->
+      <div style="font-size:13px;color:#333">
+        <span>status: <b id="ls-status">—</b></span>
+        <span style="margin-left:12px">guid: <code id="ls-guid">—</code></span>
+        <span style="margin-left:12px">GAT (to send): <code id="ls-gat">0000</code></span>
+        <div style="margin-top:6px">Record ID (after Main assigns number):
+          <code id="ls-record-preview">???-CC-CCC-GAT</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client -->
+    <script src="gatekeeping.js"></script>
+  <script>
+<script>
+async function autoCleanup() {
+  try {
+    const r = await fetch("/admin/cleanup");
+    const data = await r.json();
+    console.log("Cleanup result:", data);
+  } catch (e) {
+    console.warn("Cleanup failed", e);
+  }
+}
+
+// run once immediately at page load
+autoCleanup();
+</script>
+
+/* Place before </body> */
+<button id="exitBtn" style="position:fixed;bottom:14px;right:14px;padding:6px 10px;
+  background:#222;border:1px solid #666;border-radius:8px;color:#eee;font-size:13px;opacity:.6;cursor:pointer;">
+  Exit
+</button>
+
+<script>
+  document.getElementById('exitBtn').onclick = async () => {
+    try {
+      await fetch('/admin/shutdown', {method:'POST'});
+    } catch(e){
+      console.warn('Shutdown call failed', e);
+    }
+    window.close();
+  };
+</script>
+
+  </body>
+</html>
+

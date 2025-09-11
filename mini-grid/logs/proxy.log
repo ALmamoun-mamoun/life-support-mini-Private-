@@ -1,0 +1,74 @@
+[2025-08-19 12:09:43.465] ERROR http://127.0.0.1:3000/health Exception calling "Add" with "2" argument(s): "The 'Keep-Alive' header must be modified using the appropriate property or method.
+Parameter name: name"
+[2025-08-19 12:09:43.540] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-19 12:50:59.921] PROXY /health -> http://127.0.0.1:3001/health [200]
+[2025-08-19 12:50:59.971] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-19 12:59:23.236] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 13:10:34.250] ERROR http://127.0.0.1:3005/gatekeeping/upsert Cannot find an overload for "ByteArrayContent" and the argument count: "91".
+[2025-08-19 13:10:36.508] ERROR http://127.0.0.1:3005/gatekeeping/allow?guid=6c278ea9-f1cc-4a7f-bd4e-b196d08ba942 Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:10:36.537] ERROR http://127.0.0.1:3005/gatekeeping/upsert Cannot find an overload for "ByteArrayContent" and the argument count: "93".
+[2025-08-19 13:10:38.620] ERROR http://127.0.0.1:3005/gatekeeping/allow?guid=6c278ea9-f1cc-4a7f-bd4e-b196d08ba942 Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:23:14.523] ERROR http://127.0.0.1:3005/gatekeeping/upsert Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:23:16.699] ERROR http://127.0.0.1:3005/gatekeeping/allow?guid=ab41a56a-7e3b-4881-9bff-2df124054d3c Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:23:18.756] ERROR http://127.0.0.1:3005/gatekeeping/upsert Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:23:20.810] ERROR http://127.0.0.1:3005/gatekeeping/allow?guid=ab41a56a-7e3b-4881-9bff-2df124054d3c Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:25:26.418] ERROR http://127.0.0.1:3005/gatekeeping/upsert Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:25:28.482] ERROR http://127.0.0.1:3005/gatekeeping/allow?guid=a9818351-3806-41e8-af66-e761892b57f5 Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:25:30.550] ERROR http://127.0.0.1:3005/gatekeeping/upsert Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:25:32.608] ERROR http://127.0.0.1:3005/gatekeeping/allow?guid=a9818351-3806-41e8-af66-e761892b57f5 Exception setting "StatusCode": "The status code must be exactly three digits."
+[2025-08-19 13:42:36.084] PROXY /health -> http://127.0.0.1:3001/health [200]
+[2025-08-19 13:55:36.492] PROXY /health -> http://127.0.0.1:3001/health [200]
+[2025-08-19 13:56:18.452] PROXY /gatekeeping/upsert -> http://127.0.0.1:3001/gatekeeping/upsert [200]
+[2025-08-19 13:57:34.348] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 13:58:35.375] PROXY /gatekeeping/upsert -> http://127.0.0.1:3001/gatekeeping/upsert [200]
+[2025-08-19 13:59:38.758] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 14:02:18.027] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 14:04:39.562] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 14:15:19.634] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:16:02.909] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:17:04.983] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:17:56.073] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:01.019] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:02.042] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:03.512] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:04.647] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:05.895] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:06.125] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:06.308] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:06.476] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:18:06.650] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:24:29.326] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:24:33.943] MISS /.well-known/appspecific/com.chrome.devtools.json -> .well-known/appspecific/com.chrome.devtools.json [404]
+[2025-08-19 14:35:55.704] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:35:57.967] PROXY /gatekeeping/allow?guid=a66f0fe0-2983-4582-ab31-30f95f66113d -> http://127.0.0.1:3001/gatekeeping/allow?guid=a66f0fe0-2983-4582-ab31-30f95f66113d [200]
+[2025-08-19 14:35:57.973] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-19 14:35:57.983] MISS /.well-known/appspecific/com.chrome.devtools.json -> .well-known/appspecific/com.chrome.devtools.json [404]
+[2025-08-19 14:36:00.818] PROXY /gatekeeping/allow?guid=a66f0fe0-2983-4582-ab31-30f95f66113d -> http://127.0.0.1:3001/gatekeeping/allow?guid=a66f0fe0-2983-4582-ab31-30f95f66113d [200]
+[2025-08-19 14:36:03.670] PROXY /gatekeeping/allow?guid=a66f0fe0-2983-4582-ab31-30f95f66113d -> http://127.0.0.1:3001/gatekeeping/allow?guid=a66f0fe0-2983-4582-ab31-30f95f66113d [200]
+[2025-08-19 14:42:17.411] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:56:44.498] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 14:56:46.616] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 14:56:49.379] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 14:56:52.142] PROXY /gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 -> http://127.0.0.1:3001/gatekeeping/allow?guid=1ef35292-7699-4bf1-9f71-ce320d46b684 [200]
+[2025-08-19 16:18:46.199] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 16:31:09.386] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 16:31:14.461] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 17:07:22.734] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 17:07:22.803] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-19 17:07:22.826] MISS /.well-known/appspecific/com.chrome.devtools.json -> .well-known/appspecific/com.chrome.devtools.json [404]
+[2025-08-19 17:13:43.384] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 17:13:43.555] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-19 17:14:57.049] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 17:25:12.813] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 17:36:59.965] STATIC /prospects.html -> prospects.html [200]
+[2025-08-19 17:37:00.009] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-19 17:37:05.541] STATIC /admin.html -> admin.html [200]
+[2025-08-19 17:37:41.829] PROXY /gatekeeping/upsert -> http://127.0.0.1:3001/gatekeeping/upsert [200]
+[2025-08-19 17:38:27.124] PROXY /gatekeeping/allow?guid=0d3d4ac7-8189-4ccc-b62d-ed0a3a888296 -> http://127.0.0.1:3001/gatekeeping/allow?guid=0d3d4ac7-8189-4ccc-b62d-ed0a3a888296 [200]
+[2025-08-19 17:38:35.884] PROXY /gatekeeping/status?guid=0d3d4ac7-8189-4ccc-b62d-ed0a3a888296 -> http://127.0.0.1:3001/gatekeeping/status?guid=0d3d4ac7-8189-4ccc-b62d-ed0a3a888296 [200]
+[2025-08-19 20:16:56.039] STATIC /admin.html -> admin.html [200]
+[2025-08-19 20:16:56.161] MISS /favicon.ico -> favicon.ico [404]
+[2025-08-20 01:11:23.777] STATIC /prospects.html -> prospects.html [200]
+[2025-08-20 01:11:23.865] STATIC /languages/textsheet.js -> languages/textsheet.js [200]
+[2025-08-20 01:11:23.875] STATIC /languages/strings.csv -> languages/strings.csv [200]
+[2025-08-20 01:11:23.885] MISS /favicon.ico -> favicon.ico [404]

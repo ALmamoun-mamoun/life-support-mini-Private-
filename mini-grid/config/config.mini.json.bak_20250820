@@ -1,0 +1,19 @@
+{
+  "role": "mini",
+  "db": {
+    "driver": "sqlite",
+    "path": "./mini.db"
+  },
+  "agent": {
+    "id": "AGENT-PLACEHOLDER"
+  },
+  "crypto": {
+    "sender_key_id": "mini-key-placeholder",
+    "recipient_key_id": "main-key-placeholder"
+  },
+  "paths": {
+    "inbox": "./inbox",
+    "outbox": "./outbox",
+    "shared_main_inbox": "\\\\MAINMACHINE\\inbox"
+  }
+}

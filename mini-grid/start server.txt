@@ -1,0 +1,1 @@
+ cd 'E:\life-support-mini\api'; $env:LS_MINI_DB_PATH='E:\life-support-mini\db\mini.db'; node server.js

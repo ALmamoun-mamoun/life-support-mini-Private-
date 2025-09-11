@@ -1,0 +1,204 @@
+﻿const express = require("express");
+const path = require('path');
+// Minimal CORS (safe locally)
+app.use((req,res,next)=>{
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+// Serve the whole mini folder (so /prospecting and /config work)
+const ROOT = path.join(__dirname, '..'); // E:\life-support-mini
+app.use(express.static(ROOT));
+
+const cors = require("cors");
+const { spawnSync } = require("child_process");
+
+const app = express();
+const path  = require('path');
+const { spawn } = require('child_process');
+
+function runPy(args, res) {
+  const script = path.join(__dirname, '..', 'tools', 'geo_service.py');
+  const p = spawn('python', [script, ...args], { shell: false }); // use 'py' if needed
+  let out = '', err = '';
+  p.stdout.on('data', d => out += d);
+  p.stderr.on('data', d => err += d);
+  p.on('close', code => {
+    if (code === 0) res.type('application/json').send(out);
+    else res.status(500).json({ ok:false, error: err || ('python exit '+code) });
+  });
+}
+app.use(cors());
+app.use(express.json());
+
+const DB_PATH = process.env.LS_MINI_DB_PATH || "E:\\life-support-mini\\db\\mini.db";
+const PYTHON = process.env.PYTHON || "python";
+const STATUS = { pending: 0, permitted: 1, held_elsewhere: 2 };
+
+app.get("/health", (req, res) => res.json({ ok: true, db: DB_PATH, python: PYTHON }));
+
+function runPy(code, jsonInput) {
+  return spawnSync(PYTHON, ["-c", code], {
+    input: JSON.stringify(jsonInput || {}),
+    env: { ...process.env, LS_MINI_DB_PATH: DB_PATH },
+    encoding: "utf8",
+    maxBuffer: 10 * 1024 * 1024
+  });
+}
+
+// POST /gatekeeping/upsert
+app.post("/gatekeeping/upsert", (req, res) => {
+  try {
+    const { entity_guid, entity_type = "prospect", source = "mini", note = "" } = req.body || {};
+    let { status } = req.body || {};
+    if (!entity_guid) return res.status(400).json({ ok: false, error: "entity_guid is required" });
+    if (typeof status === "string") status = STATUS[status.trim()];
+    status = Number(status);
+    if (![0,1,2].includes(status)) {
+      return res.status(400).json({ ok: false, error: "status must be 0|1|2 or pending|permitted|held_elsewhere" });
+    }
+    const py = `
+import os, sys, json, sqlite3
+db = os.environ.get("LS_MINI_DB_PATH", r"E:\\life-support-mini\\db\\mini.db")
+data = json.load(sys.stdin)
+entity_type = data.get("entity_type","prospect")
+entity_guid = data["entity_guid"]
+status = int(data["status"])
+source = data.get("source","mini")
+note = data.get("note","")
+con = sqlite3.connect(db)
+con.execute("""
+  INSERT INTO gatekeeping (entity_type, entity_guid, status, source, note)
+  VALUES (?,?,?,?,?)
+  ON CONFLICT(entity_type, entity_guid) DO UPDATE SET
+    status=excluded.status,
+    source=excluded.source,
+    note=excluded.note,
+    updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+""", (entity_type, entity_guid, status, source, note))
+con.commit()
+con.close()
+print(json.dumps({"ok": True, "entity_type": entity_type, "entity_guid": entity_guid, "status": status}))
+`;
+    const r = runPy(py, { entity_type, entity_guid, status, source, note });
+    if (r.status !== 0) return res.status(500).json({ ok:false, error:"python_failed", stderr:r.stderr });
+    try { return res.json(JSON.parse(r.stdout)); }
+    catch { return res.status(500).json({ ok:false, error:"bad_python_output", stdout:r.stdout, stderr:r.stderr }); }
+  } catch (e) {
+    return res.status(500).json({ ok:false, error:"exception", detail:String(e) });
+  }
+});
+
+// Peek at outbox
+app.get("/event-outbox/peek", (req, res) => {
+  const py = `
+import os, json, sqlite3
+db = os.environ.get("LS_MINI_DB_PATH", r"E:\\life-support-mini\\db\\mini.db")
+con = sqlite3.connect(db); cur = con.cursor()
+cur.execute("SELECT id, topic, entity_type, entity_guid, status, payload, created_at, delivered_at FROM event_outbox ORDER BY id DESC LIMIT 10")
+cols = [d[0] for d in cur.description]
+rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+con.close()
+print(json.dumps({"ok": True, "rows": rows}))
+`;
+  const r = runPy(py, {});
+  if (r.status !== 0) return res.status(500).json({ ok:false, error:"python_failed", stderr:r.stderr });
+  try { res.json(JSON.parse(r.stdout)); }
+  catch { res.status(500).json({ ok:false, error:"bad_python_output", stdout:r.stdout, stderr:r.stderr }); }
+});
+
+app.listen(3001, () => console.log("API on http://127.0.0.1:3001 (DB:", DB_PATH + ")"));
+//
+// --- Drain endpoint: returns undelivered events and marks them delivered ----
+app.get("/event-outbox/drain", (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit || "50", 10) || 50, 500);
+  const py = `
+import os, json, sqlite3, datetime, sys
+db = os.environ.get("LS_MINI_DB_PATH", r"E:\\life-support-mini\\db\\mini.db")
+data = json.load(sys.stdin)
+limit = int(data.get("limit", 50))
+con = sqlite3.connect(db)
+con.row_factory = sqlite3.Row
+cur = con.cursor()
+cur.execute("SELECT id, topic, entity_type, entity_guid, status, payload, created_at FROM event_outbox WHERE delivered_at IS NULL ORDER BY id ASC LIMIT ?", (limit,))
+rows = [dict(r) for r in cur.fetchall()]
+if rows:
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    ids = [r["id"] for r in rows]
+    qmarks = ",".join(["?"]*len(ids))
+    cur.execute("UPDATE event_outbox SET delivered_at=? WHERE id IN (" + qmarks + ")", (now, *ids))
+    con.commit()
+con.close()
+print(json.dumps({"ok": True, "rows": rows}))
+`;
+  const r = runPy(py, { limit });
+  if (r.status !== 0) return res.status(500).json({ ok:false, error:"python_failed", stderr:r.stderr });
+  try { return res.json(JSON.parse(r.stdout)); }
+  catch { return res.status(500).json({ ok:false, error:"bad_python_output", stdout:r.stdout, stderr:r.stderr }); }
+});
+//
+// --- GET /gatekeeping/status?guid=...&entity_type=prospect -------------
+app.get("/gatekeeping/status", (req, res) => {
+  const guid = req.query.guid;
+  const entity_type = req.query.entity_type || "prospect";
+  if (!guid) return res.status(400).json({ ok:false, error:"guid is required" });
+
+  const py = `
+import os, sys, json, sqlite3
+db = os.environ.get("LS_MINI_DB_PATH", r"E:\\life-support-mini\\db\\mini.db")
+data = json.load(sys.stdin)
+entity_type = data.get("entity_type","prospect")
+guid = data["guid"]
+con = sqlite3.connect(db); con.row_factory = sqlite3.Row; cur = con.cursor()
+cur.execute("""
+SELECT g.entity_type, g.entity_guid, g.status, g.source, g.note, g.updated_at,
+       s.name as status_name
+FROM gatekeeping g
+LEFT JOIN gate_status_lu s ON s.code = g.status
+WHERE g.entity_type = ? AND g.entity_guid = ?
+""", (entity_type, guid))
+row = cur.fetchone()
+con.close()
+if row:
+    print(json.dumps({"ok": True, "found": True, "record": dict(row)}))
+else:
+    print(json.dumps({"ok": True, "found": False}))
+`;
+  const r = runPy(py, { entity_type, guid });
+  if (r.status !== 0) return res.status(500).json({ ok:false, error:"python_failed", stderr:r.stderr });
+  try { return res.json(JSON.parse(r.stdout)); }
+  catch { return res.status(500).json({ ok:false, error:"bad_python_output", stdout:r.stdout, stderr:r.stderr }); }
+});
+//
+// --- GET /gatekeeping/allow?guid=...&entity_type=prospect -------------
+app.get("/gatekeeping/allow", (req, res) => {
+  const guid = req.query.guid;
+  const entity_type = req.query.entity_type || "prospect";
+  if (!guid) return res.status(400).json({ ok:false, error:"guid is required" });
+
+  const py = `
+import os, sys, json, sqlite3
+db = os.environ.get("LS_MINI_DB_PATH", r"E:\\life-support-mini\\db\\mini.db")
+data = json.load(sys.stdin)
+entity_type = data.get("entity_type","prospect")
+guid = data["guid"]
+con = sqlite3.connect(db); con.row_factory = sqlite3.Row; cur = con.cursor()
+cur.execute("SELECT status FROM gatekeeping WHERE entity_type=? AND entity_guid=?", (entity_type, guid))
+row = cur.fetchone()
+con.close()
+if row:
+    status = int(row[0])
+    reason = {0:"pending",1:"permitted",2:"held_elsewhere"}.get(status, str(status))
+    allow = (status == 1)
+    print(json.dumps({"ok": True, "allow": allow, "reason": reason, "status": status}))
+else:
+    print(json.dumps({"ok": True, "allow": False, "reason": "not_found"}))
+`;
+  const r = runPy(py, { entity_type, guid });
+  if (r.status !== 0) return res.status(500).json({ ok:false, error:"python_failed", stderr:r.stderr });
+  try { return res.json(JSON.parse(r.stdout)); }
+  catch { return res.status(500).json({ ok:false, error:"bad_python_output", stdout:r.stdout, stderr:r.stderr }); }
+});

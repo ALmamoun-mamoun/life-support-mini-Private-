@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mini Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 24px; }
+    h1 { margin: 0 0 12px 0; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    input[type=text]{ width: 420px; padding: 8px; }
+    button { padding: 8px 12px; cursor: pointer; }
+    #out { white-space: pre; background:#111; color:#0f0; padding:12px; border-radius:6px; max-width: 900px; overflow:auto; }
+    .muted { opacity: .75; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Life-Support Mini — Admin</h1>
+  <div class="row">
+    <input id="guid" type="text" placeholder="GUID…" />
+    <button id="new">New GUID</button>
+    <button id="check-allow">Check Allow</button>
+    <button id="check-status">Check Status</button>
+  </div>
+  <div class="row">
+    <button data-status="permitted">Set PERMITTED</button>
+    <button data-status="pending">Set PENDING</button>
+    <button data-status="held_elsewhere">Set HELD_ELSEWHERE</button>
+  </div>
+  <div class="row">
+    <span class="muted">All calls go via the proxy on 3005 using relative paths.</span>
+  </div>
+  <div id="out">Ready.</div>
+
+  <script>
+    const q = sel => document.querySelector(sel);
+    const out = q('#out');
+    const $guid = q('#guid');
+
+    const log = (obj) => { out.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj,null,2); };
+
+    const getGuid = () => {
+      // prefer input; else pick from URL ?guid=...
+      let g = $guid.value.trim();
+      if (!g) {
+        try { g = new URL(location.href).searchParams.get('guid') || ''; } catch {}
+      }
+      if (!g) throw new Error('GUID is empty. Paste or click New GUID.');
+      return g;
+    };
+
+    const post = async (path, body) => {
+      const r = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    };
+    const get = async (path) => {
+      const r = await fetch(path);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    };
+
+    q('#new').onclick = () => {
+      // simple GUID generator using crypto if available
+      const g = (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+        const r = Math.random()*16|0, v = c=='x'?r:(r&0x3|0x8); return v.toString(16);
+      }));
+      $guid.value = g;
+      log('GUID: ' + g);
+    };
+
+    q('#check-allow').onclick = async () => {
+      try { const g = getGuid(); log(await get('/gatekeeping/allow?guid='+encodeURIComponent(g))); }
+      catch(e){ log(String(e)); }
+    };
+    q('#check-status').onclick = async () => {
+      try { const g = getGuid(); log(await get('/gatekeeping/status?guid='+encodeURIComponent(g))); }
+      catch(e){ log(String(e)); }
+    };
+
+    document.querySelectorAll('button[data-status]').forEach(btn=>{
+      btn.onclick = async () => {
+        try {
+          const g = getGuid();
+          const status = btn.getAttribute('data-status');
+          const res = await post('/gatekeeping/upsert', { entity_guid: g, status });
+          log(res);
+        } catch(e){ log(String(e)); }
+      };
+    });
+
+    // If page opened with ?guid=..., prefill box
+    try {
+      const g = new URL(location.href).searchParams.get('guid');
+      if (g) $guid.value = g;
+    } catch {}
+  </script>
+</body>
+</html>

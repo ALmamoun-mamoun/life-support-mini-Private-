@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Life-Support Grid</title>
+  <style>
+    body { font-family: sans-serif; background:#1a1f2b; color:#fff; margin:0; padding:0; }
+    table { width:100%; border-collapse:collapse; margin:12px; background:#1e1e2f; color:#fff; }
+    th, td { border:1px solid #444; padding:8px; text-align:left; }
+    th { background:#2a2a3d; }
+    tr:nth-child(even) { background:#2a2a3d; }
+    #auto-flag-toggle { margin:12px; padding:6px 12px; font-size:14px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h2 style="padding:12px; margin:0; display:inline-block;">Life-Support Companies</h2>
+  <button id="auto-flag-toggle">Auto-Flag: OFF</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>GUID</th>
+        <th>Company Name</th>
+        <th>Website</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Main ID</th>
+        <th>CC</th>
+        <th>CCC</th>
+      </tr>
+    </thead>
+    <tbody id="company-body"></tbody>
+  </table>
+
+  <script>
+    const API = "http://127.0.0.1:3011";
+
+    // --- Load company list ---
+    async function loadCompanies() {
+      try {
+        const r = await fetch(API + "/grid/companies");
+        const j = await r.json();
+        const tbody = document.getElementById("company-body");
+        tbody.innerHTML = "";
+
+        j.items.forEach(c => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${c.guid}</td>
+            <td>${c.company_name || "(no name)"}</td>
+            <td><a href="${c.website_url || ''}" target="_blank">${c.website_url || ''}</a></td>
+            <td>${c.email || ''}</td>
+            <td>${c.phone || ''}</td>
+            <td>${c.main_id ? "Ready to Work" : "Waiting in Lobby"}</td>
+            <td>${c.main_id || ''}</td>
+            <td>${c.cc || ''}</td>
+            <td>${c.ccc || ''}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error("Failed to load companies", err);
+      }
+    }
+
+    // --- Auto-Flag state ---
+    async function loadAutoFlag() {
+      try {
+        const r = await fetch(API + "/auto-flag");
+        const j = await r.json();
+        const btn = document.getElementById("auto-flag-toggle");
+        btn.textContent = "Auto-Flag: " + (j.auto_flag ? "ON" : "OFF");
+      } catch (err) {
+        console.error("Failed to load auto-flag", err);
+      }
+    }
+
+    async function toggleAutoFlag() {
+      const current = document.getElementById("auto-flag-toggle").textContent.includes("ON");
+      await fetch(API + "/auto-flag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ auto_flag: !current })
+      });
+      await loadAutoFlag();
+    }
+
+    // --- Bind event ---
+    document.getElementById("auto-flag-toggle").addEventListener("click", toggleAutoFlag);
+
+    // --- Auto refresh ---
+    setInterval(() => {
+      loadCompanies();
+      loadAutoFlag();
+    }, 5000);
+
+    // --- Initial load ---
+    loadCompanies();
+    loadAutoFlag();
+  </script>
+</body>
+</html>

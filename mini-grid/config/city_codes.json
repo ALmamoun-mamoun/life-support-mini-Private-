@@ -1,0 +1,5 @@
+﻿{
+  "SA": { "RIYADH": "RYD", "JEDDAH": "JED", "TAIF": "TAF" },
+  "JO": { "AMMAN": "AMM", "ZARQA": "ZQA" },
+  "US": { "NEW YORK": "NYC", "SAN FRANCISCO": "SFO", "DALLAS": "DAL" }
+}
